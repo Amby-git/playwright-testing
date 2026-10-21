@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "types": ["node"],
+    "sourceMap": true
+  },
+  "include": [
+    "playwright.config.ts",
+    "tests/**/*.ts",
+    "config/**/*.ts",
+    "pages/**/*.ts",
+    "step-definitions/**/*.ts",
+    "support/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "reports",
+    "test-results",
+    "playwright-report"
+  ]
+}

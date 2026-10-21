@@ -1,0 +1,30 @@
+{
+  "name": "playwright-testing",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Playwright end-to-end tests written in TypeScript",
+  "scripts": {
+    "test": "cucumber-js",
+    "test:all": "cucumber-js",
+    "test:tagged": "cucumber-js --tags \"@test\"",
+    "test:cucumber": "npm run test:all",
+    "test:visible": "HEADLESS=false npm run test:tagged",
+    "test:file": "cucumber-js",
+    "test:scenario": "cucumber-js --name",
+    "test:file:tagged": "cucumber-js --tags \"@test\"",
+    "report:generate": "npm run test:visible",
+    "test:playwright": "playwright test",
+    "test:headed": "playwright test --headed",
+    "report": "open reports/cucumber-report.html",
+    "report:open": "npm run report",
+    "report:playwright": "playwright show-report",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@cucumber/cucumber": "^13.3.0",
+    "@playwright/test": "^1.56.0",
+    "@types/node": "^22.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.0"
+  }
+}
