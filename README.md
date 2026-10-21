@@ -73,7 +73,7 @@ Configuration is read from environment variables in `config/test-config.ts`:
 Example:
 
 ```sh
-HEADLESS=false PARALLEL=2 npm test
+HEADLESS=false PARALLEL=2 npm test 
 ```
 
 ## Reports
