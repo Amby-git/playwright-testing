@@ -14,6 +14,29 @@ export class InventoryPage {
     await expect(this.productCards.first()).toBeVisible();
   }
 
+  async openProductDetails(productName: string): Promise<void> {
+    await this.page.locator('.inventory_item_name', { hasText: productName }).click();
+  }
+
+  async expectProductDetails(productName: string, description: string, price: string): Promise<void> {
+    await expect(this.page.locator('.inventory_details_name')).toHaveText(productName);
+    await expect(this.page.locator('.inventory_details_desc')).toHaveText(description);
+    await expect(this.page.locator('.inventory_details_price')).toHaveText(price);
+  }
+
+  async expectProductNameAndPrice(productName: string, price: string): Promise<void> {
+    await expect(this.page.locator('.inventory_details_name')).toHaveText(productName);
+    await expect(this.page.locator('.inventory_details_price')).toHaveText(price);
+  }
+
+  async expectProductNameNotToBe(productName: string): Promise<void> {
+    await expect(this.page.locator('.inventory_details_name')).not.toHaveText(productName);
+  }
+
+  async addProductFromDetails(): Promise<void> {
+    await this.page.locator('.inventory_details').getByRole('button', { name: 'Add to cart' }).click();
+  }
+
   async sortProducts(sort: ProductSort): Promise<void> {
     await this.page.locator('[data-test="product-sort-container"]').selectOption({ label: sort });
   }

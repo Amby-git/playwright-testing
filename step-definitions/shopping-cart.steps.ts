@@ -1,21 +1,40 @@
-import { Given, Then, When } from '@cucumber/cucumber';
-import { testConfig } from '../config/test-config';
+import { Then, When, type DataTable } from '@cucumber/cucumber';
 import { logBusinessEvent } from '../support/logger';
 import type { ProductSort } from '../pages/InventoryPage';
 import { TestWorld } from '../support/world';
 
-Given('I am logged in as the standard user', async function (this: TestWorld) {
-  const loginPage = requireWorldValue(this.loginPage, 'LoginPage');
-  await loginPage.open();
-  logBusinessEvent('Starting login with configured credentials.');
-  await loginPage.login(testConfig.username, testConfig.password);
-  await this.startDiagnosticsTracing();
-  await loginPage.expectSuccessfulLogin();
-});
-
 Then('the product listing should be visible', async function (this: TestWorld) {
   await requireWorldValue(this.inventoryPage, 'InventoryPage').expectProductsVisible();
   logBusinessEvent('Inventory products are displayed.');
+});
+
+When('I open the product page for {string}', async function (this: TestWorld, productName: string) {
+  await requireWorldValue(this.inventoryPage, 'InventoryPage').openProductDetails(productName);
+});
+
+Then('I should see product details for {string} with description {string} and price {string}', async function (
+  this: TestWorld,
+  productName: string,
+  description: string,
+  price: string,
+) {
+  await requireWorldValue(this.inventoryPage, 'InventoryPage').expectProductDetails(productName, description, price);
+});
+
+Then('I should see product details for {string} priced at {string}', async function (
+  this: TestWorld,
+  productName: string,
+  price: string,
+) {
+  await requireWorldValue(this.inventoryPage, 'InventoryPage').expectProductNameAndPrice(productName, price);
+});
+
+Then('the product page name should not be {string}', async function (this: TestWorld, productName: string) {
+  await requireWorldValue(this.inventoryPage, 'InventoryPage').expectProductNameNotToBe(productName);
+});
+
+When('I add the product to the cart from its details page', async function (this: TestWorld) {
+  await requireWorldValue(this.inventoryPage, 'InventoryPage').addProductFromDetails();
 });
 
 When('I sort products by price {string}', async function (this: TestWorld, direction: string) {
@@ -43,6 +62,14 @@ When('I add {string} to the cart', async function (this: TestWorld, productName:
   logBusinessEvent(`Added ${productName} to the cart.`);
 });
 
+When('I add the following products to the cart:', async function (this: TestWorld, products: DataTable) {
+  const productNames = dataTableValues(products, 'product');
+  for (const productName of productNames) {
+    await requireWorldValue(this.inventoryPage, 'InventoryPage').addProduct(productName);
+    logBusinessEvent(`Added ${productName} to the cart.`);
+  }
+});
+
 When('I remove {string} from the inventory page', async function (this: TestWorld, productName: string) {
   await requireWorldValue(this.inventoryPage, 'InventoryPage').removeProduct(productName);
   logBusinessEvent(`Removed ${productName} from the cart.`);
@@ -59,6 +86,14 @@ When('I open the cart', async function (this: TestWorld) {
 
 Then('I should see {string} in the cart', async function (this: TestWorld, productName: string) {
   await requireWorldValue(this.cartPage, 'CartPage').expectProductVisible(productName);
+});
+
+Then('the cart should contain the following products:', async function (this: TestWorld, products: DataTable) {
+  const productNames = dataTableValues(products, 'product');
+  const cartPage = requireWorldValue(this.cartPage, 'CartPage');
+  for (const productName of productNames) {
+    await cartPage.expectProductVisible(productName);
+  }
 });
 
 When('I remove {string} from the cart', async function (this: TestWorld, productName: string) {
@@ -128,6 +163,14 @@ Then('I should see the message {string}', async function (this: TestWorld, messa
 function requireWorldValue<T>(value: T | undefined, pageObjectName: string): T {
   if (!value) throw new Error(`${pageObjectName} is not initialized. Ensure the scenario setup hook has run.`);
   return value;
+}
+
+function dataTableValues(table: DataTable, columnName: string): string[] {
+  const rows = table.hashes();
+  if (rows.length === 0 || rows.some((row) => !row[columnName]?.trim())) {
+    throw new Error(`The data table must include at least one non-empty "${columnName}" value.`);
+  }
+  return rows.map((row) => row[columnName].trim());
 }
 
 function priceSortOption(direction: string): ProductSort {

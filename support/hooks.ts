@@ -24,6 +24,14 @@ Before(async function (this: TestWorld) {
   this.initializePages(this.page);
 });
 
+Before({ tags: '@logged-in' }, async function (this: TestWorld) {
+  if (!this.loginPage) throw new Error('LoginPage is not initialized. Ensure the browser setup hook has run.');
+  await this.loginPage.open();
+  await this.loginPage.login(testConfig.username, testConfig.password);
+  await this.startDiagnosticsTracing();
+  await this.loginPage.expectSuccessfulLogin();
+});
+
 After(async function (this: TestWorld, { pickle, result }) {
   const failed = result?.status === Status.FAILED;
   const fileStem = `${safeFileName(pickle.name)}-${Date.now()}`;

@@ -26,3 +26,21 @@ Feature: SauceDemo login
     Given I am on the SauceDemo login page
     When I submit empty login credentials
     Then I should see the login error "Username is required"
+
+  @test
+  Scenario Outline: Login rejects invalid credential combinations
+    Given I am on the SauceDemo login page
+    When I submit the "<case>" login case
+    Then I should see the login error "<message>"
+    Examples:
+      | case             | message                                  |
+      | invalid username | Username and password do not match      |
+      | invalid password | Username and password do not match      |
+      | empty username   | Username is required                    |
+      | empty password   | Password is required                    |
+
+  @test
+  Scenario: Locked-out account cannot sign in
+    Given I am on the SauceDemo login page
+    When I log in with the locked-out user
+    Then I should see the login error "Sorry, this user has been locked out."

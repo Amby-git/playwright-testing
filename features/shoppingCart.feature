@@ -1,3 +1,4 @@
+@logged-in
 Feature: SauceDemo inventory, cart, and checkout
   As a signed-in shopper
   I want to select and purchase products
@@ -5,12 +6,10 @@ Feature: SauceDemo inventory, cart, and checkout
 
   @test
   Scenario: Inventory products are displayed after login
-    Given I am logged in as the standard user
     Then the product listing should be visible
 
   @test
   Scenario Outline: Products can be sorted by name
-    Given I am logged in as the standard user
     When I sort products by name from "<direction>"
     Then products should be sorted by name from "<direction>"
     Examples:
@@ -20,7 +19,6 @@ Feature: SauceDemo inventory, cart, and checkout
 
   @test
   Scenario Outline: Products can be sorted by price
-    Given I am logged in as the standard user
     When I sort products by price "<direction>"
     Then products should be sorted by price "<direction>"
     Examples:
@@ -30,35 +28,82 @@ Feature: SauceDemo inventory, cart, and checkout
 
   @test
   Scenario: A product can be added and the badge shows its count
-    Given I am logged in as the standard user
     When I add "Sauce Labs Backpack" to the cart
     Then the cart badge should show 1 item
 
   @test
+  Scenario Outline: Different products can be added to the cart
+    When I add "<product>" to the cart
+    Then the cart badge should show 1 item
+    When I open the cart
+    Then I should see "<product>" in the cart
+
+    Examples:
+      | product                  |
+      | Sauce Labs Backpack      |
+      | Sauce Labs Bike Light    |
+      | Sauce Labs Bolt T-Shirt  |
+      | Sauce Labs Fleece Jacket |
+
+  @test
+  Scenario: Multiple products can be added to the cart together
+    When I add the following products to the cart:
+      | product                  |
+      | Sauce Labs Backpack      |
+      | Sauce Labs Bike Light    |
+      | Sauce Labs Bolt T-Shirt  |
+    Then the cart badge should show 3 item
+    When I open the cart
+    Then the cart should contain the following products:
+      | product                 |
+      | Sauce Labs Backpack     |
+      | Sauce Labs Bike Light   |
+      | Sauce Labs Bolt T-Shirt |
+
+  @test
+  Scenario Outline: Different products can be removed from the inventory
+    When I add "<product>" to the cart
+    When I remove "<product>" from the inventory page
+    Then the cart badge should show 0 item
+    Examples:
+      | product                  |
+      | Sauce Labs Backpack      |
+      | Sauce Labs Bike Light    |
+      | Sauce Labs Bolt T-Shirt  |
+
+  @test
   Scenario: A product can be removed from the inventory page
-    Given I am logged in as the standard user
     When I add "Sauce Labs Backpack" to the cart
     And I remove "Sauce Labs Backpack" from the inventory page
     Then the cart badge should show 0 item
 
   @test
   Scenario: The cart can be opened and displays an added product
-    Given I am logged in as the standard user
     When I add "Sauce Labs Backpack" to the cart
     And I open the cart
     Then I should see "Sauce Labs Backpack" in the cart
 
   @test
   Scenario: A product can be removed from the cart
-    Given I am logged in as the standard user
     When I add "Sauce Labs Backpack" to the cart
     And I open the cart
     When I remove "Sauce Labs Backpack" from the cart
     Then the cart should be empty
 
   @test
+  Scenario Outline: Different products can be removed from the cart
+    When I add "<product>" to the cart
+    And I open the cart
+    When I remove "<product>" from the cart
+    Then the cart should be empty
+    Examples:
+      | product                  |
+      | Sauce Labs Backpack      |
+      | Sauce Labs Bike Light    |
+      | Sauce Labs Bolt T-Shirt  |
+
+  @test
   Scenario: The cart is empty after removing its only product
-    Given I am logged in as the standard user
     When I add "Sauce Labs Backpack" to the cart
     And I open the cart
     And I remove "Sauce Labs Backpack" from the cart
@@ -67,7 +112,6 @@ Feature: SauceDemo inventory, cart, and checkout
 
   @test
   Scenario: Checkout opens the customer information page
-    Given I am logged in as the standard user
     When I add "Sauce Labs Backpack" to the cart
     And I open the cart
     And I start checkout
@@ -75,7 +119,6 @@ Feature: SauceDemo inventory, cart, and checkout
 
   @test
   Scenario: Checkout requires customer details
-    Given I am logged in as the standard user
     When I add "Sauce Labs Backpack" to the cart
     And I open the cart
     And I start checkout
@@ -84,7 +127,6 @@ Feature: SauceDemo inventory, cart, and checkout
 
   @test
   Scenario: Checkout can proceed with customer details
-    Given I am logged in as the standard user
     When I add "Sauce Labs Backpack" to the cart
     And I open the cart
     And I start checkout
@@ -94,7 +136,6 @@ Feature: SauceDemo inventory, cart, and checkout
 
   @test
   Scenario: An order can be completed successfully
-    Given I am logged in as the standard user
     When I add "Sauce Labs Backpack" to the cart
     And I open the cart
     And I start checkout
@@ -105,7 +146,6 @@ Feature: SauceDemo inventory, cart, and checkout
 
   @test
   Scenario: The order confirmation message is displayed
-    Given I am logged in as the standard user
     When I add "Sauce Labs Backpack" to the cart
     And I open the cart
     And I start checkout
